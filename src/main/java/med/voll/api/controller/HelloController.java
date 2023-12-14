@@ -1,4 +1,4 @@
-package med.voll.api.controller;
+package med.voll.api.controller; //classe onde a gente mapeia as informações que chegarão na nossa API
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
