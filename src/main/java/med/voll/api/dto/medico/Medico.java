@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import med.voll.api.dto.endereco.DadosEndereco;
 
 @Table(name = "medicos")
 @Entity(name = "Medico")
