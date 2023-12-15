@@ -38,6 +38,7 @@ public class Medico {
         this.nome = dados.nome();
         this.email = dados.email();
         this.crm = dados.crm();
+        this.especialidade = dados.especialidade();
         this.dadosendereco = new DadosEndereco(dados.endereco());
     }
 }
