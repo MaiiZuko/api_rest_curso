@@ -9,11 +9,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import med.voll.api.dto.medico.DadosAtualizacaoMedico;
 import med.voll.api.dto.medico.DadosCadastroMedico;
 import med.voll.api.dto.medico.DadosListagemMedico;
 import med.voll.api.dto.medico.Medico;
@@ -39,6 +41,14 @@ public class MedicoController {
     public Page<DadosListagemMedico> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) { //agora podemos controlar por exemplo: http://localhost:8080/medicos?size=1 - mostra só um médico na lista - http://localhost:8080/medicos?size=1&page=2 vai trocando a pagina
         return repository.findAll(paginacao).map(DadosListagemMedico::new);// Fazendo em paginação
 
+    }
+
+    @PutMapping
+    @Transactional
+    public void atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados){
+        //para atualizar no banco de dados
+        var medico = repository.getReferenceById(dados.id()); //id ta dentro do nosso dto
+        medico.atualizarInformacoes(dados);
     }
     
 }
