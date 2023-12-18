@@ -41,7 +41,7 @@ public class MedicoController {
 
     @GetMapping //carrega apenas 10 registros e ordena pelo nome
     public Page<DadosListagemMedico> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) { //agora podemos controlar por exemplo: http://localhost:8080/medicos?size=1 - mostra só um médico na lista - http://localhost:8080/medicos?size=1&page=2 vai trocando a pagina
-        return repository.findAll(paginacao).map(DadosListagemMedico::new);// Fazendo em paginação
+        return repository.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);// Fazendo em paginação
 
     }
 
