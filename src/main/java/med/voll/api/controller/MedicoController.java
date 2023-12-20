@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
 import med.voll.api.dto.medico.DadosAtualizacaoMedico;
 import med.voll.api.dto.medico.DadosCadastroMedico;
+import med.voll.api.dto.medico.DadosDetalhamentoMedico;
 import med.voll.api.dto.medico.DadosListagemMedico;
 import med.voll.api.dto.medico.Medico;
 import med.voll.api.dto.medico.MedicoRepository;
@@ -35,23 +37,28 @@ public class MedicoController {
 
     @PostMapping
     @Transactional //Transação ativa com o banco de dados
-    public void cadastrar(@RequestBody @Valid DadosCadastroMedico dados){ //Para chamar o corpo da requisição - para receber cada um dos campos json separadamente - usar classe, dentro da classe declaramos o atributo com os mesmos nomes que vem do json
-        repository.save(new Medico(dados));
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroMedico dados, UriComponentsBuilder uriBuilder){ //Para chamar o corpo da requisição - para receber cada um dos campos json separadamente - usar classe, dentro da classe declaramos o atributo com os mesmos nomes que vem do json
+        var medico = new Medico(dados);
+        repository.save(medico);
+        var uri =uriBuilder.path("/medicos/{id}").buildAndExpand(medico.getId()).toUri();
+        return ResponseEntity.created(null).body(new DadosDetalhamentoMedico(medico));
+        //201 - registro foi criado - created
 
     }
 
     @GetMapping //carrega apenas 10 registros e ordena pelo nome
-    public Page<DadosListagemMedico> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) { //agora podemos controlar por exemplo: http://localhost:8080/medicos?size=1 - mostra só um médico na lista - http://localhost:8080/medicos?size=1&page=2 vai trocando a pagina
-        return repository.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);// Fazendo em paginação
-
+    public ResponseEntity<Page<DadosListagemMedico>> listar(@PageableDefault(size = 10, sort = {"nome"}) Pageable paginacao) { //agora podemos controlar por exemplo: http://localhost:8080/medicos?size=1 - mostra só um médico na lista - http://localhost:8080/medicos?size=1&page=2 vai trocando a pagina
+        var page = repository.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);// Fazendo em paginação
+        return ResponseEntity.ok(page); //204
     }
 
     @PutMapping
     @Transactional
-    public void atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados){
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados){
         //para atualizar no banco de dados
         var medico = repository.getReferenceById(dados.id()); //id ta dentro do nosso dto
         medico.atualizarInformacoes(dados);
+        return ResponseEntity.ok(new DadosDetalhamentoMedico(medico)); //devolve os dados do médico atualizado
     }
 
     @DeleteMapping("/{id}")
@@ -59,7 +66,7 @@ public class MedicoController {
     public ResponseEntity excluir(@PathVariable Long id) {
         var medico = repository.getReferenceById(id);
         medico.excluir();
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.noContent().build(); //204
     }
     
 }
